@@ -31,7 +31,7 @@ async def custom_site():
 
     bundle = "simon_press_start"
 
-    platform.window.setLoaderStage("Descargando paquete del juego...", "Son aproximadamente 73 MB. El tiempo depende de tu conexión.")
+    platform.window.setLoaderStage("Descargando paquete del juego...", "Son aproximadamente 73 MB. El tiempo depende de tu conexion.")
 
     # the C or js loader could do that but be explicit.
     appdir = Path(f"/data/data/{bundle}") # /data/data/simon_press_start
@@ -42,7 +42,7 @@ async def custom_site():
     # one request. This avoids the large per-part overhead of platform.fopen.
     import zipfile
     async with platform.fopen("simon_press_start.apk", "rb") as archive:
-        platform.window.setLoaderStage("Descomprimiendo recursos...", "Preparando imágenes, sonidos y escenarios.")
+        platform.window.setLoaderStage("Descomprimiendo recursos...", "Preparando imagenes, sonidos y escenarios.")
         with zipfile.ZipFile(archive) as zip_ref:
             zip_ref.extractall(appdir.as_posix())
 
@@ -305,7 +305,7 @@ function show_infobox() {
         .loader-card{width:min(620px,92vw);text-align:center}.loader-logo{width:clamp(90px,18vw,150px);aspect-ratio:1;object-fit:cover;border-radius:50%;box-shadow:0 0 40px #c52cff88}
         .loader-title{margin:18px 0 5px;font-size:clamp(28px,7vw,54px);line-height:.9;letter-spacing:-.04em}.loader-title span{display:block;color:#e353ff;font-size:.55em;letter-spacing:.08em}
         #loader-stage{margin:24px 0 10px;color:#f4d9ff;font-weight:700;min-height:1.3em}.loader-track{height:18px;overflow:hidden;border:1px solid #dca1ff;border-radius:20px;background:#09020f;box-shadow:inset 0 0 8px #000,0 0 20px #b82cff55}
-        #loader-fill{width:2%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7b21c9,#ef3fc2,#56dcff);transition:width .25s ease;box-shadow:0 0 18px #ef3fc2}
+        #loader-fill{width:2%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7b21c9,#ef3fc2,#56dcff);transition:width .25s ease;box-shadow:0 0 18px #ef3fc2}#loader-fill.indeterminate{width:32%;animation:loader-scan 1.25s ease-in-out infinite}@keyframes loader-scan{0%{transform:translateX(-110%)}100%{transform:translateX(315%)}}
         .loader-meta{display:flex;justify-content:space-between;gap:15px;margin-top:9px;color:#c6b3d1;font-size:13px}#loader-percent{color:#fff;font-weight:900}#loader-detail{margin:18px auto 0;color:#9f8cab;font-size:12px;line-height:1.5;max-width:500px}
         #status,#progress{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}#infobox{display:none!important}    </style>
 
@@ -330,7 +330,7 @@ function show_infobox() {
             <h1 class="loader-title">SIMON <span>PRESS START</span></h1>
             <div id="loader-stage">Iniciando motor web...</div>
             <div class="loader-track"><div id="loader-fill"></div></div>
-            <div class="loader-meta"><span id="loader-status">Conectando</span><span id="loader-percent">0%</span></div>
+            <div class="loader-meta"><span id="loader-status">Conectando</span><span id="loader-percent">Iniciando</span></div>
             <p id="loader-detail">La primera carga descarga aproximadamente 73 MB. No cierres esta pestaña.</p>
             <div id="status">Downloading...</div>
             <progress value="0" max="100" id="progress"></progress>
@@ -428,9 +428,21 @@ frameborder="1"
         const max = Number(nativeProgress.max) || 100;
         const value = Math.max(0, Number(nativeProgress.value) || 0);
         const pct = Math.min(100, Math.round(value / max * 100));
-        fill.style.width = Math.max(2, pct) + '%';
-        percent.textContent = pct + '%';
-        if (nativeStatus && nativeStatus.textContent.trim()) label.textContent = nativeStatus.textContent.trim();
+        const elapsed = Math.floor((Date.now() - loaderStartedAt) / 1000);
+        const elapsedText = String(Math.floor(elapsed / 60)).padStart(2, '0') + ':' + String(elapsed % 60).padStart(2, '0');
+        if (pct > 0) {
+            fill.classList.remove('indeterminate');
+            fill.style.width = Math.max(2, pct) + '%';
+            percent.textContent = pct + '%';
+        } else {
+            fill.classList.add('indeterminate');
+            fill.style.width = '32%';
+            percent.textContent = elapsedText;
+        }
+        if (nativeStatus && nativeStatus.textContent.trim()) {
+            const nativeText = nativeStatus.textContent.trim();
+            label.textContent = nativeText === 'Running...' ? 'Descarga en curso' : nativeText;
+        }
         if (pct > 0 && pct < 100) setLoaderStage('Descargando archivos del juego...');
         if (pct >= 100) setLoaderStage('Preparando recursos y escenarios...', 'La descarga terminó. Estamos descomprimiendo e iniciando el juego.');
         if (Date.now() - loaderStartedAt > 90000 && pct < 100) document.getElementById('loader-detail').textContent = 'La conexión está tardando más de lo esperado. Mantené abierta la pestaña o recargá si el porcentaje no avanza.';
