@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#07020e">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; media-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
   <meta name="description" content="Juegos, diseños y aplicaciones de Dment Creative. Jugá Simon Press Start online o descargalo para Windows.">
   <title>Dment Creative · Juegos, diseños y apps</title>
   <link rel="icon" href="favicon.png">
@@ -74,7 +77,7 @@
     <section class="section" id="designs"><div class="section-head"><div><h2>Designs</h2><p>Arte, personajes y universos visuales.</p></div></div><div class="grid"><div class="placeholder"><strong>Arte conceptual</strong><span>Próximamente: galerías y procesos creativos.</span></div><div class="placeholder"><strong>Personajes</strong><span>Diseños, variantes y hojas de animación.</span></div><div class="placeholder"><strong>Escenarios</strong><span>Mundos, ambientes y fondos del proyecto.</span></div></div></section>
     <section class="section" id="creations3d"><div class="section-head"><div><h2>3D Creations</h2><p>Modelado, renders y objetos digitales.</p></div></div><div class="grid"><div class="placeholder"><strong>Personajes 3D</strong><span>Modelos y criaturas en desarrollo.</span></div><div class="placeholder"><strong>Escenarios 3D</strong><span>Entornos, props y mundos digitales.</span></div><div class="placeholder"><strong>Renders</strong><span>Próximamente: galería de trabajos.</span></div></div></section>
     <section class="section" id="audio">
-      <div class="section-head"><div><h2>Audio</h2><p>Música, ambientes y efectos sonoros de Dment Creative.</p></div></div>
+      <div class="section-head"><div><h2>Audio</h2><p>Muestras de música, ambientes y efectos sonoros de Dment Creative.</p></div></div>
       <div class="audio-grid" id="audio-gallery" aria-live="polite"><div class="audio-empty"><div><strong>Galería de audio en preparación</strong><span>Próximamente vas a poder escuchar y descargar producciones originales.</span></div></div></div>
     </section>    <section class="section" id="apps"><div class="section-head"><div><h2>Apps</h2><p>Herramientas y experiencias interactivas.</p></div></div><div class="placeholder"><strong>Nuevas aplicaciones en desarrollo</strong><span>Esta sección crecerá con cada nuevo lanzamiento.</span></div></section>
     <section class="section" id="descargas"><div class="section-head"><div><h2>Descargas</h2><p>Versiones instalables y archivos oficiales.</p></div></div><div class="placeholder"><strong>Simon Press Start para Windows</strong><span>El botón de la tarjeta lleva a la descarga oficial. Extraé el ZIP completo antes de ejecutar el juego.</span></div></section>
@@ -96,9 +99,9 @@
             else cover.append(text('span', '♫', 'audio-note'));
             const info = document.createElement('div'); info.className = 'audio-info';
             info.append(text('h3', track.title), text('p', track.description));
-            const player = document.createElement('audio'); player.controls = true; player.preload = 'metadata'; player.src = `audio/${track.file}`; info.append(player);
-            const meta = document.createElement('div'); meta.className = 'audio-meta'; meta.append(text('span', track.type || 'Audio original'));
-            if (track.download !== false) { const link = text('a', 'Descargar', 'audio-download'); link.href = `audio/${track.file}`; link.download = ''; meta.append(link); }
+            const player = document.createElement('audio'); player.controls = true; player.preload = 'metadata'; player.controlsList = 'nodownload noplaybackrate'; player.disablePictureInPicture = true; player.src = `audio/${track.previewFile}`; player.addEventListener('contextmenu', event => event.preventDefault()); const limit = Math.min(Number(track.previewSeconds) || 30, 30); player.addEventListener('timeupdate', () => { if (player.currentTime >= limit) { player.pause(); player.currentTime = limit; } }); info.append(player);
+            const meta = document.createElement('div'); meta.className = 'audio-meta'; meta.append(text('span', track.type || 'Audio original'), text('span', `Muestra · ${Math.min(Number(track.previewSeconds) || 30, 30)} s`));
+
             info.append(meta); card.append(cover, info); return card;
           }));
         })
